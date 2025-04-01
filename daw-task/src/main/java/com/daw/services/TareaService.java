@@ -1,15 +1,16 @@
 package com.daw.services;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.daw.persistence.entities.Tarea;
 import com.daw.persistence.entities.enums.Estado;
 import com.daw.persistence.repositories.TareaRepository;
+import com.daw.services.exceptions.TareaNotFoundException;
 
 @Service
 public class TareaService {
@@ -23,12 +24,60 @@ public class TareaService {
 
 }
 	
+	public Tarea findById (int idTarea) {
+		
+		if(!this.tareaRepository.existsById(idTarea)) {
+			throw new TareaNotFoundException("El id no existe");
+			
+		}
+		
+		return this.tareaRepository.findById(idTarea).get();
 	
+	}	
 
+		public boolean existsById(int idTarea) {
+			
+			return this.tareaRepository.existsById(idTarea);
+			
+		}
+		public boolean deleteById (int idTarea) {
+			boolean result = false;
+			
+			if (this.tareaRepository.existsById(idTarea)) {
+				this.tareaRepository.deleteById(idTarea);
+				result = true;
+				
+			}
+			
+			return result;
+			
+		}
 
+		
+		public Tarea create (Tarea tarea) {
+			
+			tarea.setFechaCreacion(LocalDate.now());
+			tarea.setEstado(Estado.PENDIENTE);
+			
+			return this.tareaRepository.save(tarea);
+		}
+		
 
-	
-}
+		public Tarea update(Tarea tarea) {
+			
+				Tarea tareaBD = this.findById(tarea.getId());
+				tarea.setFechaCreacion(tareaBD.getFechaCreacion());
+				tarea.setEstado(tareaBD.getEstado());
+				
+				return this.tareaRepository.save(tarea);
+			}
+			
+			
+			
+		}
+		
+		
+
 
 
 
